@@ -3,16 +3,15 @@ const ObjectId = mongoose.Schema.Types.ObjectId
 
 const cardCreate = mongoose.Schema({
   
-    userId: {type :ObjectId, ref: "userModel",required: true,trim:true},
+    userId: {type :ObjectId, ref: "users",required: true,trim:true},
     items: [{
-      productId: {type :ObjectId, ref: "product",required: true,trim:true},
-      quantity: {type :Number,required: true,trim:true}
+      productId: {type :ObjectId, ref: "products",required: true,trim:true},
+      quantity: {type :Number,required: true,trim:true},
+      _id:false
     }],
     totalPrice: {type :Number,required: true},
     totalItems: {type :Number,required: true},
     
-    deletedAt: {type :Date}, 
-    isDeleted: {type:Boolean, default: false}
     
 },{ timestamps: true })
 

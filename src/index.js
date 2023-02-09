@@ -8,7 +8,7 @@ const app = express()
 app.use(express.json())
 app.use(multer().any())
 
-mongoose.connect("mongodb+srv://Pal25:Pallavi2552@cluster0.hihf8kq.mongodb.net/group1Database")
+mongoose.connect("mongodb+srv://sanhil143:raisahab12345@sanhildb.kk3knyj.mongodb.net/group1Database")
 .then(() => console.log("mongoDB is connected"))
 .catch((error) => console.error(error))
 

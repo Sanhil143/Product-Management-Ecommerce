@@ -3,23 +3,37 @@ const { validObjectId } = require('../validations/validator1');
 const UserModel = require("../models/userModel");
 
 const authentication = function (req, res, next) {
-    let token;
-    if (req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
-      token = req.headers.authorization.split(" ")[1];
+  try {
+    const Bearer = req.headers["authorization"]  // token from headers
+    if (!Bearer) {
+        return res.status(400).send({ status: false, message: "token must be present" })
     }
-    if (!token) {
-      return res.status(401).send({ status:false, message:"Please login to get access."});
-    }
-  
-    decodedToken = jwt.verify(token,"group1", (err, decode) => {
-        if (err) {
-          return res
-            .status(400)
-            .send({ status: false, message: "Token is not correct!",});
+    else {
+        const token = Bearer.split(" ")
+        if (token[0] !== "Bearer") {
+            return res.status(400).send({ status: false, message: "Select Bearer Token in headers" })
         }
-        req.user_Id = decode.userId;
-        next();
-      })
+        jwt.verify(token[1], "group1", function (err, decodedToken) {
+
+            if (err) {
+                if (err.message == "invalid token" || err.message == "invalid signature") {
+                    return res.status(401).send({ status: false, message: "Token in not valid" })
+                }
+                if (err.message == "jwt expired") {
+                    return res.status(401).send({ status: false, message: "Token has been expired" })
+                }
+                return res.status(401).send({ status: false, message: err.message })
+            }
+            else {
+              req.user_Id = decodedToken.userId      
+                next()
+            }
+        })
+    }
+}
+catch (error) {
+    return res.status(500).send({ status: false, message: error.message })
+}
   };
 
   const authorization = async function (req, res, next) {
