@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
 const { uploadFile } = require('../aws/aws-connection')
 const { validCity, validFname, validLname, validPinCode, validStreet,
-      validMail, validNumber, validPassword, validObjectId ,validFile} = require('../validations/validator1')
+      validMail, validNumber, validPassword, validObjectId, validFile } = require('../validations/validator1')
 
 const register = async (req, res) => {
       try {
@@ -11,13 +11,13 @@ const register = async (req, res) => {
             let profileImage = req.files;
             console.log(profileImage);
             console.log(req.files)
-           
+
 
             if (Object.keys(data).length === 0) {
                   return res.status(400).send({ status: false, message: "please enter data on body" })
             }
             //Destructuring body
-            let { fname, lname, email, phone,  password, address,...rest } = data
+            let { fname, lname, email, phone, password, address, ...rest } = data
 
             if (Object.keys(rest).length > 0) {
                   return res.status(400).send({ status: false, message: "another key not acceptable" })
@@ -41,7 +41,7 @@ const register = async (req, res) => {
             if (!email) {
                   return res.status(400).send({ status: false, message: "please enter email address" })
             }
-            if (email.trim()== "" || !validMail(email.trim())) {
+            if (email.trim() == "" || !validMail(email.trim())) {
                   return res.status(400).send({ status: false, message: "please enter valid email address" })
             }
             let verifyEmail = await UserModel.findOne({ email: email })
@@ -135,14 +135,14 @@ const register = async (req, res) => {
                   return res.status(400).send({ status: false, message: "please insert profile image!" })
             }
 
-            if (profileImage.length>0) {
-               
-                    if ( profileImage.length >1)return res.status(400).send({status: false,message: 'please select only one profile image' })
-                    if(! validFile(profileImage[0].originalname))return res.status(400).send({status: false,message: 'please select valid  image like jpeg , png ,jpg' })
-                    let uploadedFileURL = await uploadFile(profileImage[0]);
-                    data.profileImage = uploadedFileURL;
-                }
-           
+            if (profileImage.length > 0) {
+
+                  if (profileImage.length > 1) return res.status(400).send({ status: false, message: 'please select only one profile image' })
+                  if (!validFile(profileImage[0].originalname)) return res.status(400).send({ status: false, message: 'please select valid  image like jpeg , png ,jpg' })
+                  let uploadedFileURL = await uploadFile(profileImage[0]);
+                  data.profileImage = uploadedFileURL;
+            }
+
 
             let savedData = await UserModel.create(data);
             return res.status(201).send({ status: true, message: "User created successfully", data: savedData })
@@ -233,57 +233,57 @@ const updateUser = async (req, res) => {
             if (!validLname(lname)) {
                   return res.status(400).send({ status: false, message: "lname is invalid" })
             }
-            if(address){
-            try {
-                  let add = JSON.parse(address)
+            let user = await UserModel.findOne({ _id: id })
 
-                  if (!Array.isArray(add) == false) {
-                        return res.status(400).send({ status: false, message: "inset address must be an object format" })
+            if (address) {
+                  try {
+                        let add = JSON.parse(address)
+                        let address1 = user.address
+                        let { shipping, billing } = add
+
+
+                        if (shipping) {
+                              let { pincode, city, street } = shipping
+
+                              if (street) {
+                                    if (!validStreet(street)) return res.status(400).send({ status: false, message: "please enter valid street name on shipping address!" })
+                                    address1.shipping.street = add.shipping.street
+                              }
+
+                              if (city) {
+                                    if (!validCity(city)) return res.status(400).send({ status: false, message: "please enter valid city name on shipping address!" })
+                                    address1.shipping.city = add.shipping.city
+                              }
+
+                              if (pincode) {
+                                    if (!validPinCode(pincode)) return res.status(400).send({ status: false, message: "please enter valid pincode on shipping address!" })
+                                    address1.shipping.pincode = add.shipping.pincode
+                              }
+                        }
+
+                        // ===================billing
+
+                        if (billing) {
+                              let { pincode, city, street } = billing
+                              if (street) {
+                                    if (!validStreet(street)) return res.status(400).send({ status: false, message: "please enter valid street name on billing address!" })
+                                    address1.billing.street = add.billing.street
+                              }
+
+                              if (city) {
+                                    if (!validCity(city)) return res.status(400).send({ status: false, message: "please enter valid city name on billing address!" })
+                                    address1.billing.city = add.billing.city
+                              }
+
+                              if (pincode) {
+                                    if (!validPinCode(pincode)) return res.status(400).send({ status: false, message: "please enter valid pincode on billing address!" })
+                                    address1.billing.pincode = add.billing.pincode
+                              }
+                        }
+
+                        data.address = address1
                   }
-                  if (!add.shipping) {
-                        return res.status(400).send({ status: false, message: "please enter shipping address!" })
-                  }
-                  if (!add.shipping.street) {
-                        return res.status(400).send({ status: false, message: "please enter street name on shipping address!" })
-                  }
-                  if (!validStreet(add.shipping.street)) {
-                        return res.status(400).send({ status: false, message: "please enter valid street name on shipping address!" })
-                  }
-                  if (!add.shipping.city) {
-                        return res.status(400).send({ status: false, message: "please enter city name on shipping address!" })
-                  }
-                  if (!validCity(add.shipping.city)) {
-                        return res.status(400).send({ status: false, message: "please enter valid city name on shipping address!" })
-                  }
-                  if (!add.shipping.pincode) {
-                        return res.status(400).send({ status: false, message: "please enter pincode on shipping address!" })
-                  }
-                  if (!validPinCode(add.shipping.pincode)) {
-                        return res.status(400).send({ status: false, message: "please enter valid pincode on shipping address!" })
-                  }
-                  if (!add.billing) {
-                        return res.status(400).send({ status: false, message: "please enter billing address!" })
-                  }
-                  if (!add.billing.street) {
-                        return res.status(400).send({ status: false, message: "please enter street name on billing address!" })
-                  }
-                  if (!validStreet(add.billing.street)) {
-                        return res.status(400).send({ status: false, message: "please enter valid street name on billing address!" })
-                  }
-                  if (!add.billing.city) {
-                        return res.status(400).send({ status: false, message: "please enter city name on billing address!" })
-                  }
-                  if (!validCity(add.billing.city)) {
-                        return res.status(400).send({ status: false, message: "please enter valid city name on billing address!" })
-                  }
-                  if (!add.billing.pincode) {
-                        return res.status(400).send({ status: false, message: "please enter pincode on billing address!" })
-                  }
-                  if (!validPinCode(add.billing.pincode)) {
-                        return res.status(400).send({ status: false, message: "please enter valid pincode on billing address!" })
-                  }
-                  data.address = add
-            }
+            
             catch (error) {
                   if (error) {
                         return res.status(400).send({ status: false, message: "please enter address in valid object format" })
@@ -291,51 +291,51 @@ const updateUser = async (req, res) => {
             }
       }
             if (password) {
-                  if (!validPassword(password)) return res.status(400).send({ status: false, message: "password is invalid" })
-                  data.password = await bcrypt.hash(password, 10);
+            if (!validPassword(password)) return res.status(400).send({ status: false, message: "password is invalid" })
+            data.password = await bcrypt.hash(password, 10);
 
-            }
-
-
-            if (email) {
-                  if (!validMail(email)) {
-                        return res.status(400).send({ status: false, message: "email invalid" })
-                  }
-                  let emailCheck = await UserModel.findOne({ email: email })
-                  console.log(emailCheck);
-                  if (emailCheck) {
-                        return res.status(400).send({ status: false, message: "email already exist" })
-                  }
-            }
-      
-            if (phone) {
-                  if (!validNumber(phone)) {
-                        return res.status(400).send({ status: false, message: " phone invalid use only 10 Number" })
-                  }
-                  let phoneCheck = await UserModel.findOne({ phone: phone })
-                  if (phoneCheck) {
-                        return res.status(400).send({ status: false, message: "phone already exist" })
-                  }
-            }
-
-            if (files && files.length > 0) {
-                  let upload = await uploadFile(files[0])
-                  if (!upload) {
-                        return res.status(400).send({ status: true, message: "please insert profile image" })
-                  }
-                  data.profileImage = upload
-            }
-
-            let updateData = await UserModel.findByIdAndUpdate({ _id: id }, data, { new: true })
-            if (!updateData) {
-                  return res.status(404).send({ status: false, message: "not found user id " })
-            }
-
-            res.status(200).send({ status: true, message: "User profile updated", data: updateData })
       }
+
+
+      if (email) {
+            if (!validMail(email)) {
+                  return res.status(400).send({ status: false, message: "email invalid" })
+            }
+            let emailCheck = await UserModel.findOne({ email: email })
+            console.log(emailCheck);
+            if (emailCheck) {
+                  return res.status(400).send({ status: false, message: "email already exist" })
+            }
+      }
+
+      if (phone) {
+            if (!validNumber(phone)) {
+                  return res.status(400).send({ status: false, message: " phone invalid use only 10 Number" })
+            }
+            let phoneCheck = await UserModel.findOne({ phone: phone })
+            if (phoneCheck) {
+                  return res.status(400).send({ status: false, message: "phone already exist" })
+            }
+      }
+
+      if (files && files.length > 0) {
+            let upload = await uploadFile(files[0])
+            if (!upload) {
+                  return res.status(400).send({ status: true, message: "please insert profile image" })
+            }
+            data.profileImage = upload
+      }
+
+      let updateData = await UserModel.findByIdAndUpdate({ _id: id }, data, { new: true })
+      if (!updateData) {
+            return res.status(404).send({ status: false, message: "not found user id " })
+      }
+
+      res.status(200).send({ status: true, message: "User profile updated", data: updateData })
+}
       catch (error) {
-            return res.status(500).send({ status: false, message: error.message })
-      }
+      return res.status(500).send({ status: false, message: error.message })
+}
 
 }
 

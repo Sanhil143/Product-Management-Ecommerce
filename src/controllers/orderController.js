@@ -16,9 +16,11 @@ const createOrder = async function (req, res) {
             if (!validObjectId(cartId)) return res.status(400).send({ status: false, message: "not valid card id " })
 
             let cardDetails = await CartModel.findById({ _id: cartId })
+            if(!cardDetails){
+                  return res.status(400).send({ status: false, message: "please enter cartId" })
+            }
             if ((cardDetails.items).length == 0) return res.status(400).send({ status: false, message: "to add items in product" })
             let items = cardDetails.items
-            if (items == 0) return res.status(400).send({ status: false, message: "to add some product in card" })
 
             let sum = 0
             for (let i = 0; i < items.length; i++) {
