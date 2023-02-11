@@ -1,4 +1,5 @@
-#Californium
+# Created by Sanhil
+
 ## Project - Products Management
 
 ### Key points
