@@ -2,7 +2,6 @@ const CartModel = require("../models/cartModel");
 const OrderModel = require("../models/orderModel");
 const { validObjectId } = require("../validations/validator1");
 
-//=====================================// CREATE ORDER //==================================//
 
 const createOrder = async function (req, res) {
   try {
@@ -66,7 +65,6 @@ const createOrder = async function (req, res) {
   }
 };
 
-//=====================================// UPDATE ORDER //==================================//
 
 const updateOrder = async function (req, res) {
   try {

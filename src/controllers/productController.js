@@ -1,9 +1,7 @@
 const ProductModel = require("../models/productModel");
 const { uploadFile } = require("../aws/aws-connection");
 const {
-  validCity,
   validObjectId,
-  validNumber,
   validFile,
 } = require("../validations/validator1");
 
@@ -157,7 +155,6 @@ const createProduct = async function (req, res) {
   }
 };
 
-// get api for filter=========================
 
 const getProductByFilter = async function (req, res) {
   try {
@@ -275,7 +272,6 @@ const getProductByFilter = async function (req, res) {
   }
 };
 
-// ================================
 
 const getProduct = async (req, res) => {
   try {
@@ -460,7 +456,6 @@ let updateProduct = async (req, res) => {
   }
 };
 
-//delete product
 const deleteProduct = async (req, res) => {
   try {
     let productId = req.params.productId;
